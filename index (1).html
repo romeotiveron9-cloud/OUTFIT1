@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f7f3ff" />
+  <title>Outfit Vault</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+
+  <!-- ✅ CSS: stesso folder di index.html -->
+  <link rel="stylesheet" href="./styles.css?v=1" />
+</head>
+
+<body>
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-top">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">👔</div>
+        <div class="brand-text">
+          <div class="appname">Outfit Vault</div>
+          <div class="tagline" id="tagline">Il tuo guardaroba offline</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="installBtn" class="chip chip-accent" type="button" hidden aria-label="Installa app">
+          ⬇️ <span id="installBtnText">Installa</span>
+        </button>
+
+        <button id="selectModeBtn" class="chip" type="button" aria-label="Seleziona più outfit">
+          ✓ Seleziona
+        </button>
+
+        <button id="openSettings" class="icon-btn" type="button" aria-label="Impostazioni">⚙️</button>
+      </div>
+    </div>
+
+    <div class="header-bottom">
+      <div class="search-wrap">
+        <span class="search-ico" aria-hidden="true">⌕</span>
+        <input id="searchInput" class="search" type="text" placeholder="Cerca outfit…" />
+      </div>
+
+      <div class="sort-wrap">
+        <select id="sortSelect" class="select" aria-label="Ordina">
+          <option value="date_desc">Più recenti</option>
+          <option value="date_asc">Più vecchi</option>
+          <option value="fav_first">Preferiti (prima)</option>
+          <option value="fav_only">Solo preferiti</option>
+          <option value="rating_desc">Voto più alto</option>
+          <option value="rating_asc">Voto più basso</option>
+          <option value="name_asc">Nome A→Z</option>
+          <option value="name_desc">Nome Z→A</option>
+          <option value="wear_desc">Più usati</option>
+          <option value="wear_asc">Meno usati</option>
+          <option value="lastworn_asc">Non usati da tanto</option>
+          <option value="lastworn_desc">Usati di recente</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- ✅ input file globale -->
+  <input id="fileInput" type="file" accept="image/*" hidden>
+
+  <main class="app-main">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" aria-label="Controlli">
+      <section class="panel">
+        <div class="panel-head-row">
+          <div class="panel-head">
+            <h1 class="title">I miei outfit</h1>
+            <p class="subtitle" id="subtitle">Carica, vota e condividi.</p>
+          </div>
+
+          <!-- ✅ Aggiungi a destra del titolo -->
+          <button id="addBtn" class="btn btn-primary btn-compact" type="button">
+            ➕ <span id="addBtnText">Aggiungi</span>
+          </button>
+        </div>
+
+        <div class="stats onecol">
+          <div class="stat">
+            <div class="stat-label">Salvati</div>
+            <div class="stat-value"><span id="savedCount">0</span></div>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- CONTENT -->
+    <section class="content" aria-label="Contenuto principale">
+      <!-- Filtri rapidi -->
+      <section class="panel filters-panel" aria-label="Filtri rapidi">
+        <div class="filters-row">
+          <button id="filterAll" class="chip chip-active" type="button">Tutti</button>
+          <button id="filterFav" class="chip" type="button">❤️ Preferiti</button>
+          <button id="filter4plus" class="chip" type="button">⭐ 4+</button>
+          <button id="filterStale" class="chip" type="button">⏳ Non usati 30g</button>
+          <button id="filterClearTag" class="chip chip-ghost" type="button" hidden>✕ Tag</button>
+        </div>
+        <div id="tagChips" class="tagchips" aria-label="Tag"></div>
+      </section>
+
+      <!-- Empty state -->
+      <section id="emptyState" class="empty" hidden>
+        <div class="empty-card">
+          <div class="empty-emoji">🧥</div>
+          <div class="empty-title">Nessun outfit ancora</div>
+          <div class="empty-sub">Tocca “Aggiungi” per iniziare. Tutto resta sul tuo dispositivo.</div>
+          <button class="btn btn-primary btn-wide" type="button" id="emptyAddBtn">➕ Aggiungi il primo outfit</button>
+        </div>
+      </section>
+
+      <!-- Grid -->
+      <section id="grid" class="grid" aria-label="Lista outfit"></section>
+    </section>
+  </main>
+
+  <!-- =========================
+       MODAL: CREATE
+  ========================== -->
+  <div id="createBackdrop" class="modal-backdrop" hidden></div>
+  <section id="createModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="createTitle" hidden>
+    <div class="modal-header">
+      <div class="modal-title">
+        <h2 id="createTitle">Nuovo outfit</h2>
+        <div class="modal-meta" id="createMeta">Anteprima + dati</div>
+      </div>
+      <button id="closeCreate" class="icon-btn" type="button" aria-label="Chiudi">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="detail-media">
+        <img id="createPreview" alt="Anteprima outfit" />
+      </div>
+
+      <div class="detail-fields">
+        <label class="label" for="createName">Nome</label>
+        <input id="createName" class="input" type="text" placeholder="Es. Outfit ufficio" />
+
+        <label class="label">Voto</label>
+        <div id="createStars" class="stars" aria-label="Voto outfit"></div>
+
+        <label class="check">
+          <input id="createFav" type="checkbox" />
+          <span>Preferito</span>
+        </label>
+
+        <label class="label" for="createTags">Tag (separati da virgola)</label>
+        <input id="createTags" class="input" type="text" placeholder="es. ufficio, nero, estate" />
+        <div id="createTagPreview" class="tagchips"></div>
+
+        <label class="label" for="createNotes">Note</label>
+        <textarea id="createNotes" class="textarea" rows="3" placeholder="es. scarpe bianche + cintura"></textarea>
+
+        <label class="check">
+          <input id="createCropSquare" type="checkbox" checked />
+          <span>Ritaglia quadrato (centrato)</span>
+        </label>
+
+        <div class="detail-actions">
+          <button id="createCancel" class="btn btn-secondary" type="button">Annulla</button>
+          <button id="createSave" class="btn btn-primary" type="button">💾 Salva outfit</button>
+        </div>
+
+        <div class="tiny">Verrà salvato offline sul dispositivo. Nessun upload.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       MODAL: DETAIL
+  ========================== -->
+  <div id="detailBackdrop" class="modal-backdrop" hidden></div>
+  <section id="detailModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle" hidden>
+    <div class="modal-header">
+      <div class="modal-title">
+        <h2 id="detailTitle">Outfit</h2>
+        <div class="modal-meta" id="detailMeta">—</div>
+      </div>
+      <button id="closeDetail" class="icon-btn" type="button" aria-label="Chiudi">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="detail-media">
+        <img id="detailImg" alt="Foto outfit" />
+      </div>
+
+      <div class="detail-fields">
+        <label class="label" for="detailName">Nome</label>
+        <input id="detailName" class="input" type="text" />
+
+        <label class="label">Voto</label>
+        <div id="detailStars" class="stars" aria-label="Voto outfit"></div>
+
+        <label class="check">
+          <input id="detailFav" type="checkbox" />
+          <span>Preferito</span>
+        </label>
+
+        <label class="label" for="detailTags">Tag</label>
+        <input id="detailTags" class="input" type="text" placeholder="es. ufficio, nero" />
+        <div id="detailTagPreview" class="tagchips"></div>
+
+        <label class="label" for="detailNotes">Note</label>
+        <textarea id="detailNotes" class="textarea" rows="3"></textarea>
+
+        <div class="wear-box">
+          <div class="wear-item"><span class="wear-k">Usi:</span> <strong id="wearCount">0</strong></div>
+          <div class="wear-item"><span class="wear-k">Ultima volta:</span> <strong id="lastWorn">—</strong></div>
+          <button id="wearTodayBtn" class="btn btn-secondary" type="button">👟 Indossato oggi</button>
+        </div>
+
+        <div class="detail-actions">
+          <button id="shareBtn" class="btn btn-secondary" type="button">📤 Condividi</button>
+          <button id="deleteBtn" class="btn btn-danger" type="button">🗑️ Elimina</button>
+          <button id="saveDetailBtn" class="btn btn-primary" type="button">💾 Salva</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       MODAL: SETTINGS
+  ========================== -->
+  <div id="settingsBackdrop" class="modal-backdrop" hidden></div>
+  <section id="settingsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
+    <div class="modal-header">
+      <h2 id="settingsTitle">Impostazioni</h2>
+      <button id="closeSettings" class="icon-btn" type="button" aria-label="Chiudi">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="setting">
+        <label class="label" for="themeSelect">Tema</label>
+        <select id="themeSelect" class="select">
+          <option value="system">Sistema</option>
+          <option value="light">Chiaro</option>
+          <option value="dark">Scuro</option>
+        </select>
+      </div>
+
+      <div class="setting">
+        <label class="label">Backup</label>
+        <div class="setting-actions">
+          <button id="exportBtn" class="btn btn-secondary" type="button">⬇️ Export</button>
+          <button id="importBtn" class="btn btn-secondary" type="button">⬆️ Import</button>
+          <input id="importFile" type="file" accept="application/json" hidden />
+        </div>
+        <div class="hint">Export/Import in JSON (incluse immagini).</div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button id="saveSettings" class="btn btn-primary" type="button">Salva</button>
+    </div>
+  </section>
+
+  <!-- Bulk bar -->
+  <div id="bulkBar" class="bulkbar" hidden>
+    <div class="bulk-left">
+      <span class="bulk-count"><strong id="bulkCount">0</strong> selezionati</span>
+    </div>
+    <div class="bulk-actions">
+      <button id="bulkFav" class="chip" type="button">❤️ Preferito</button>
+      <button id="bulkExport" class="chip" type="button">⬇️ Export</button>
+      <button id="bulkDelete" class="chip chip-danger" type="button">🗑️ Elimina</button>
+      <button id="bulkDone" class="chip chip-ghost" type="button">Fine</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" hidden>
+    <div id="toastMsg" class="toast-msg">—</div>
+    <button id="toastAction" class="toast-action" type="button" hidden>Undo</button>
+  </div>
+
+  <!-- ✅ JS: stesso folder di index.html -->
+  <script src="./app.js?v=1"></script>
+</body>
+</html>
