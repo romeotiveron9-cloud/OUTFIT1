@@ -11,12 +11,12 @@
   <link rel="icon" href="./icons/icon-192.png">
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
 
-  <!-- ✅ CSS: stesso folder di index.html -->
+  <!-- ✅ CACHE BUSTER -->
   <link rel="stylesheet" href="./styles.css?v=1" />
 </head>
 
 <body>
-  <!-- HEADER -->
+  <!-- Header -->
   <header class="app-header">
     <div class="header-top">
       <div class="brand">
@@ -65,22 +65,21 @@
     </div>
   </header>
 
-  <!-- ✅ input file globale -->
-  <input id="fileInput" type="file" accept="image/*" hidden>
+  <!-- file input -->
+  <input id="fileInput" type="file" accept="image/*" hidden />
 
   <main class="app-main">
-    <!-- SIDEBAR -->
+    <!-- Sidebar -->
     <aside class="sidebar" aria-label="Controlli">
       <section class="panel">
         <div class="panel-head-row">
           <div class="panel-head">
             <h1 class="title">I miei outfit</h1>
-            <p class="subtitle" id="subtitle">Carica, vota e condividi.</p>
+            <p class="subtitle">Carica, vota e condividi.</p>
           </div>
 
-          <!-- ✅ Aggiungi a destra del titolo -->
           <button id="addBtn" class="btn btn-primary btn-compact" type="button">
-            ➕ <span id="addBtnText">Aggiungi</span>
+            ➕ <span>Aggiungi</span>
           </button>
         </div>
 
@@ -93,9 +92,8 @@
       </section>
     </aside>
 
-    <!-- CONTENT -->
+    <!-- Content -->
     <section class="content" aria-label="Contenuto principale">
-      <!-- Filtri rapidi -->
       <section class="panel filters-panel" aria-label="Filtri rapidi">
         <div class="filters-row">
           <button id="filterAll" class="chip chip-active" type="button">Tutti</button>
@@ -107,30 +105,26 @@
         <div id="tagChips" class="tagchips" aria-label="Tag"></div>
       </section>
 
-      <!-- Empty state -->
       <section id="emptyState" class="empty" hidden>
         <div class="empty-card">
           <div class="empty-emoji">🧥</div>
           <div class="empty-title">Nessun outfit ancora</div>
           <div class="empty-sub">Tocca “Aggiungi” per iniziare. Tutto resta sul tuo dispositivo.</div>
-          <button class="btn btn-primary btn-wide" type="button" id="emptyAddBtn">➕ Aggiungi il primo outfit</button>
+          <button id="emptyAddBtn" class="btn btn-primary btn-wide" type="button">➕ Aggiungi il primo outfit</button>
         </div>
       </section>
 
-      <!-- Grid -->
       <section id="grid" class="grid" aria-label="Lista outfit"></section>
     </section>
   </main>
 
-  <!-- =========================
-       MODAL: CREATE
-  ========================== -->
+  <!-- CREATE MODAL -->
   <div id="createBackdrop" class="modal-backdrop" hidden></div>
   <section id="createModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="createTitle" hidden>
     <div class="modal-header">
       <div class="modal-title">
         <h2 id="createTitle">Nuovo outfit</h2>
-        <div class="modal-meta" id="createMeta">Anteprima + dati</div>
+        <div class="modal-meta">Anteprima + dati</div>
       </div>
       <button id="closeCreate" class="icon-btn" type="button" aria-label="Chiudi">✕</button>
     </div>
@@ -169,14 +163,12 @@
           <button id="createSave" class="btn btn-primary" type="button">💾 Salva outfit</button>
         </div>
 
-        <div class="tiny">Verrà salvato offline sul dispositivo. Nessun upload.</div>
+        <div class="tiny">Salvataggio offline sul dispositivo. Nessun upload.</div>
       </div>
     </div>
   </section>
 
-  <!-- =========================
-       MODAL: DETAIL
-  ========================== -->
+  <!-- DETAIL MODAL -->
   <div id="detailBackdrop" class="modal-backdrop" hidden></div>
   <section id="detailModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle" hidden>
     <div class="modal-header">
@@ -205,7 +197,7 @@
         </label>
 
         <label class="label" for="detailTags">Tag</label>
-        <input id="detailTags" class="input" type="text" placeholder="es. ufficio, nero" />
+        <input id="detailTags" class="input" type="text" />
         <div id="detailTagPreview" class="tagchips"></div>
 
         <label class="label" for="detailNotes">Note</label>
@@ -226,9 +218,7 @@
     </div>
   </section>
 
-  <!-- =========================
-       MODAL: SETTINGS
-  ========================== -->
+  <!-- SETTINGS MODAL -->
   <div id="settingsBackdrop" class="modal-backdrop" hidden></div>
   <section id="settingsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
     <div class="modal-header">
@@ -244,6 +234,7 @@
           <option value="light">Chiaro</option>
           <option value="dark">Scuro</option>
         </select>
+        <div class="hint">Il tema viene salvato sul dispositivo.</div>
       </div>
 
       <div class="setting">
@@ -253,7 +244,7 @@
           <button id="importBtn" class="btn btn-secondary" type="button">⬆️ Import</button>
           <input id="importFile" type="file" accept="application/json" hidden />
         </div>
-        <div class="hint">Export/Import in JSON (incluse immagini).</div>
+        <div class="hint">Export/Import JSON (incluse immagini).</div>
       </div>
     </div>
 
@@ -262,7 +253,7 @@
     </div>
   </section>
 
-  <!-- Bulk bar -->
+  <!-- BULK BAR (IMPORTANT: hidden!) -->
   <div id="bulkBar" class="bulkbar" hidden>
     <div class="bulk-left">
       <span class="bulk-count"><strong id="bulkCount">0</strong> selezionati</span>
@@ -275,13 +266,13 @@
     </div>
   </div>
 
-  <!-- Toast -->
+  <!-- TOAST -->
   <div id="toast" class="toast" hidden>
     <div id="toastMsg" class="toast-msg">—</div>
     <button id="toastAction" class="toast-action" type="button" hidden>Undo</button>
   </div>
 
-  <!-- ✅ JS: stesso folder di index.html -->
+  <!-- ✅ CACHE BUSTER -->
   <script src="./app.js?v=1"></script>
 </body>
 </html>
